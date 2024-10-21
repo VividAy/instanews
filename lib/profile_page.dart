@@ -1,9 +1,37 @@
-// lib/profile_page.dart
 import 'package:flutter/material.dart';
-import 'dart:ui';
+import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  // Initially set isFollowing to false
+  bool isFollowing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFollowingState(); // Load the following state when the page is initialized
+  }
+
+  // Load the saved following state from SharedPreferences
+  Future<void> _loadFollowingState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isFollowing = prefs.getBool('isFollowing') ??
+          false; // Default to false if no value found
+    });
+  }
+
+  // Save the following state to SharedPreferences
+  Future<void> _saveFollowingState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool('isFollowing', isFollowing);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +43,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             // Profile Section
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 70.0, 16.0, 0),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -37,9 +65,6 @@ class ProfilePage extends StatelessWidget {
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey[300],
-                      // backgroundImage: NetworkImage(
-                      //   'https://your-image-url.com', // Replace with actual image URL
-                      // ),
                     ),
                     const SizedBox(height: 16),
                     // User Name
@@ -63,34 +88,31 @@ class ProfilePage extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton.icon(
-                          onPressed: () {},
-                          label: const Text(
-                            'Following',
-                            style: TextStyle(
-                                color: Colors.black), // Set text color to black
+                          onPressed: () {
+                            // Toggle the following state
+                            setState(() {
+                              isFollowing = !isFollowing;
+                              _saveFollowingState(); // Save the state when changed
+                            });
+                          },
+                          label: Text(
+                            isFollowing ? 'Following' : 'Follow',
+                            style: const TextStyle(color: Colors.black),
+                          ),
+                          icon: Icon(
+                            isFollowing
+                                ? Icons.check
+                                : Icons.add, // Change icon
+                            color: Colors.black,
                           ),
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color(0xFF7FA643), // Green color
+                            backgroundColor: isFollowing
+                                ? const Color(0xFF7FA643)
+                                : Colors.grey, // Change color
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            minimumSize: const Size(
-                                200, 50), // Set minimum width and height
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        // Add Icon
-                        ElevatedButton(
-                          onPressed: () {},
-                          child: const Icon(
-                            Icons.add,
-                            color: Color(0xFF7FA643),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            shape: CircleBorder(),
-                            padding: const EdgeInsets.all(10),
-                            backgroundColor: Colors.grey[300],
+                            minimumSize: const Size(200, 50), // Set size
                           ),
                         ),
                       ],
@@ -99,10 +121,9 @@ class ProfilePage extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
             // Grid View Section (Placeholder)
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
               child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),

@@ -12,17 +12,18 @@ class _MyHomePageState extends State<MyHomePage> {
   final PageController _pageController =
       PageController(); // Controller for PageView
   List<String> _imageUrls = []; // List of image URLs
+  List<String> _descriptions = []; // List of image descriptions
   String _selectedItem = 'Literature'; // Track the selected top bar item
   int _currentPage = 0;
 
   @override
   void initState() {
     super.initState();
-    _loadImages(); // Load the initial set of images
+    _loadImagesAndDescriptions(); // Load the initial set of images and descriptions
   }
 
-  // Function to load 10 images at a time
-  void _loadImages() {
+  // Function to load 10 images and their descriptions at a time
+  void _loadImagesAndDescriptions() {
     List<String> newImages = [
       // Add 10 image URLs here for demonstration
       'https://media.cnn.com/api/v1/images/stellar/prod/ap24294169788999-copy.jpg?c=16x9&q=h_653,w_1160,c_fill/f_webp',
@@ -37,17 +38,31 @@ class _MyHomePageState extends State<MyHomePage> {
       'https://picsum.photos/300/200?image=10',
     ];
 
-    // Append the new images to the current list
+    List<String> newDescriptions = [
+      'A stunning sunset over the mountains, showcasing vibrant hues.',
+      'A serene lake surrounded by lush forests under a clear blue sky.',
+      'A bustling cityscape at night with lights reflecting on wet streets.',
+      'A field of wildflowers in full bloom, spreading colors across the landscape.',
+      'A lone tree standing against a dramatic stormy sky.',
+      'A snow-covered mountain peak illuminated by the golden morning light.',
+      'A tranquil beach with gentle waves lapping against the shore at dusk.',
+      'A dense fog rolling over a mysterious forest.',
+      'A starry night sky over a desert landscape, with the Milky Way visible.',
+      'A quaint village nestled in the hills during autumn, with vibrant foliage.',
+    ];
+
+    // Append the new images and descriptions to the current lists
     setState(() {
       _imageUrls.addAll(newImages);
+      _descriptions.addAll(newDescriptions);
     });
   }
 
-  // Fetch more images once the user reaches the 10th page
+  // Fetch more images and descriptions once the user reaches the 10th page
   void _onPageChanged(int index) {
     _currentPage = index;
     if (_currentPage == _imageUrls.length - 1) {
-      _loadImages(); // Load the next set of 10 images when the user reaches the last image
+      _loadImagesAndDescriptions(); // Load the next set of 10 images and descriptions when the user reaches the last image
     }
   }
 
@@ -78,7 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (shouldLeave) {
-      const url = 'https://www.cnn.com/2024/10/20/americas/cuba-blackout-third-day-failed-restore-intl/index.html'; // Example URL
+      const url =
+          'https://www.cnn.com/2024/10/20/americas/cuba-blackout-third-day-failed-restore-intl/index.html'; // Example URL
       if (await canLaunch(url)) {
         await launch(url); // Open the URL in an external browser
       } else {
@@ -178,28 +194,32 @@ class _MyHomePageState extends State<MyHomePage> {
               borderRadius: BorderRadius.circular(16.0), // Rounded corners
             ),
             child: _imageUrls[index].isNotEmpty
-                ? Image.network(
-                    _imageUrls[index],
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) {
-                        return child;
-                      }
-                      return Center(
-                        child: CircularProgressIndicator(
-                          value: loadingProgress.expectedTotalBytes != null
-                              ? loadingProgress.cumulativeBytesLoaded /
-                                  (loadingProgress.expectedTotalBytes ?? 1)
-                              : null,
-                        ),
-                      );
-                    },
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(
+                        16.0), // Rounded edges for the image
+                    child: Image.network(
+                      _imageUrls[index],
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) {
+                          return child;
+                        }
+                        return Center(
+                          child: CircularProgressIndicator(
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes ?? 1)
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
                   )
                 : const Center(child: Text('No image available')),
           ),
         ),
         const SizedBox(height: 16), // Add some space between the containers
-        // Second Container
+        // Second Container (showing the description)
         Expanded(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
@@ -209,10 +229,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.grey[300], // Grey color for the second container
                 borderRadius: BorderRadius.circular(16.0), // Rounded corners
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'Container 2',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  _descriptions[index],
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

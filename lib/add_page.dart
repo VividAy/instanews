@@ -28,6 +28,7 @@ class _AddPageState extends State<AddPage> {
     '3D Art and Design',
     'Article Review',
     'Science Research',
+    'Tennis'
   ];
 
   // Function to save the entered data

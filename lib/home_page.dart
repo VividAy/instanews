@@ -1,5 +1,8 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart'; // For launching URLs in a browser
+import 'profile_page.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -15,6 +18,7 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> _descriptions = []; // List of image descriptions
   String _selectedItem = 'Literature'; // Track the selected top bar item
   int _currentPage = 0;
+  int _likeState = 0;
 
   @override
   void initState() {
@@ -65,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _loadImagesAndDescriptions(); // Load the next set of 10 images and descriptions when the user reaches the last image
     }
   }
-
+  // Initialize like count
   // Function to show a dialog when swiping right
   Future<void> _showLeaveDialog() async {
     bool shouldLeave = await showDialog(
@@ -108,7 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: GestureDetector(
         onHorizontalDragEnd: (details) {
-          if (details.primaryVelocity! > 0) {
+          if (details.primaryVelocity! < 0) {
             // Swipe right detected
             _showLeaveDialog();
           }
@@ -181,71 +185,120 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Function to build each page for PageView
   Widget _buildPage(int index) {
-    return Column(
-      children: [
-        // First Container (showing an image)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 30, 16, 0),
+  List<String> _comments = []; // List to hold comments
+  TextEditingController _commentController = TextEditingController(); // Text controller for comments
+
+  return Column(
+    children: [
+      // First Container (showing an image)
+      Padding(
+        padding: const EdgeInsets.fromLTRB(16, 30, 16, 0),
+        child: Container(
+          width: double.infinity, // Make it take up full width
+          height: 300, // Specify height for the first container
+          decoration: BoxDecoration(
+            color: Colors.grey[300], // Grey color for the box
+            borderRadius: BorderRadius.circular(16.0), // Rounded corners
+          ),
+          child: _imageUrls[index].isNotEmpty
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(
+                      16.0), // Rounded edges for the image
+                  child: Image.network(
+                    _imageUrls[index],
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) {
+                        return child;
+                      }
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null
+                              ? loadingProgress.cumulativeBytesLoaded /
+                                  (loadingProgress.expectedTotalBytes ?? 1)
+                              : null,
+                        ),
+                      );
+                    },
+                  ),
+                )
+              : const Center(child: Text('No image available')),
+        ),
+      ),
+      const SizedBox(height: 16), // Add some space between the containers
+      // Second Container (showing the description, profile, likes, and comments)
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+              horizontal: 16.0), // Uniform left and right padding
           child: Container(
             width: double.infinity, // Make it take up full width
-            height: 300, // Specify height for the first container
             decoration: BoxDecoration(
-              color: Colors.grey[300], // Grey color for the box
+              color: Colors.grey[300], // Grey color for the second container
               borderRadius: BorderRadius.circular(16.0), // Rounded corners
             ),
-            child: _imageUrls[index].isNotEmpty
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(
-                        16.0), // Rounded edges for the image
-                    child: Image.network(
-                      _imageUrls[index],
-                      fit: BoxFit.cover,
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) {
-                          return child;
-                        }
-                        return Center(
-                          child: CircularProgressIndicator(
-                            value: loadingProgress.expectedTotalBytes != null
-                                ? loadingProgress.cumulativeBytesLoaded /
-                                    (loadingProgress.expectedTotalBytes ?? 1)
-                                : null,
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                : const Center(child: Text('No image available')),
-          ),
-        ),
-        const SizedBox(height: 16), // Add some space between the containers
-        // Second Container (showing the description)
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-                horizontal: 16.0), // Uniform left and right padding
-            child: Container(
-              width: double.infinity, // Make it take up full width
-              decoration: BoxDecoration(
-                color: Colors.grey[300], // Grey color for the second container
-                borderRadius: BorderRadius.circular(16.0), // Rounded corners
-              ),
-              child: Center(
-                child: Padding(
+            child: Stack(
+              children: [
+                // Main content in the center
+                Padding(
                   padding: const EdgeInsets.all(
                       16.0), // Uniform padding inside the description container
-                  child: Text(
-                    _descriptions[index],
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                    textAlign: TextAlign.center,
+                  child: Center(
+                    child: Text(
+                      _descriptions[index],
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
-              ),
+                // Profile picture (bottom left)
+                Positioned(
+                  bottom: 10,
+                  left: 10,
+                  child: GestureDetector(
+                    onTap: () {
+                      // Navigate to another page (e.g., ProfilePage)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
+                    },
+                    child: CircleAvatar(
+                      radius: 20, // Set the size of the profile picture
+                      backgroundImage: NetworkImage(
+                          'https://picsum.photos/200'), // Example profile image
+                    ),
+                  ),
+                ),
+                // Heart icon (bottom right)
+                Positioned(
+                  bottom: 10,
+                  right: 10,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.favorite),
+                        color: Colors.red, // Color of the heart icon
+                        onPressed: () {
+                          setState(() {
+                            _likeState++; // Increment the like count
+                          });
+                        },
+                      ),
+                      Text('$_likeState'),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 }

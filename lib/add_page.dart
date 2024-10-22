@@ -22,6 +22,7 @@ class _AddPageState extends State<AddPage> {
 
   List<String> _tags = []; // List of selected tags
   bool _showDropdown = false;
+  final int maxWords = 50; // Maximum word limit for the description
 
   final List<String> _availableTags = [
     'Literature',
@@ -33,34 +34,75 @@ class _AddPageState extends State<AddPage> {
 
   // Function to save the entered data
   void _saveData() {
-    String title = _titleController.text;
-    String description = _descriptionController.text;
+  String title = _titleController.text.trim();
+  String description = _descriptionController.text.trim();
+  String imageUrl = _imageUrl ??
+      ''; // Check for image URL or set an empty string if no image is uploaded
 
-    String imageUrl = _imageUrl ??
-        'https://via.placeholder.com/150'; // Placeholder if no image is provided
-
-    // Create a new Submission object
-    Submission submission = Submission(
-      title: title,
-      description: description,
-      imageUrl: imageUrl,
-    );
-
-    // Use Provider to update the list of submissions
-    Provider.of<SubmissionProvider>(context, listen: false)
-        .addSubmission(submission);
-
-    // Navigate to the ThankYouPage
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ThankYouPage(
-          imageUrls: imageUrls,
-          descriptions: descriptions,
-        ),
-      ),
-    );
+  // Validate if all fields are filled
+  if (title.isEmpty) {
+    _showErrorDialog('Title is required');
+    return;
   }
+  
+  if (description.isEmpty) {
+    _showErrorDialog('Description is required');
+    return;
+  }
+
+  if (imageUrl.isEmpty) {
+    _showErrorDialog('Image is required');
+    return;
+  }
+
+  if (_tags.isEmpty) {
+    _showErrorDialog('At least one tag is required');
+    return;
+  }
+
+  // Create a new Submission object
+  Submission submission = Submission(
+    title: title,
+    description: description,
+    imageUrl: imageUrl,
+  );
+
+  // Use Provider to update the list of submissions
+  Provider.of<SubmissionProvider>(context, listen: false)
+      .addSubmission(submission);
+
+  // Navigate to the ThankYouPage
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ThankYouPage(
+        imageUrls: imageUrls,
+        descriptions: descriptions,
+      ),
+    ),
+  );
+}
+
+// Method to show an error dialog
+void _showErrorDialog(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   // Function to add a tag to the list
   void _addTag(String tag) {
@@ -70,6 +112,12 @@ class _AddPageState extends State<AddPage> {
         _showDropdown = false;
       });
     }
+  }
+
+  // Function to count words in a text
+  int _wordCount(String text) {
+    if (text.isEmpty) return 0;
+    return text.trim().split(RegExp(r'\s+')).length;
   }
 
   @override
@@ -97,8 +145,7 @@ class _AddPageState extends State<AddPage> {
                 const SizedBox(height: 30),
                 _buildTextField(_titleController, 'Enter title', 40),
                 const SizedBox(height: 12),
-                _buildTextField(
-                    _descriptionController, 'Enter description', 200),
+                _buildDescriptionTextField(_descriptionController, 'Enter description', 200),
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {
@@ -147,7 +194,7 @@ class _AddPageState extends State<AddPage> {
     );
   }
 
-  // Method to build the text fields
+  // Method to build the title text field
   Widget _buildTextField(
       TextEditingController controller, String hintText, double height) {
     return Container(
@@ -165,6 +212,60 @@ class _AddPageState extends State<AddPage> {
           hintText: hintText,
           contentPadding: const EdgeInsets.symmetric(vertical: 10),
         ),
+      ),
+    );
+  }
+
+  // Method to build the description text field with word limit logic and scrollability
+  Widget _buildDescriptionTextField(
+      TextEditingController controller, String hintText, double height) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            child: TextField(
+              controller: controller,
+              maxLines: null, // Makes the TextField expand vertically
+              onChanged: (text) {
+                if (_wordCount(text) > maxWords) {
+                  // If the word count exceeds maxWords, truncate the text
+                  final trimmedText = text
+                      .trim()
+                      .split(RegExp(r'\s+'))
+                      .take(maxWords)
+                      .join(' ');
+
+                  controller.value = TextEditingValue(
+                    text: trimmedText,
+                    selection: TextSelection.fromPosition(
+                      TextPosition(offset: trimmedText.length),
+                    ),
+                  );
+                }
+                setState(() {}); // Rebuild to update the word count display
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: hintText,
+                contentPadding: const EdgeInsets.symmetric(vertical: 10),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
+            left: 10,
+            child: Text(
+              '${_wordCount(controller.text)}/$maxWords words',
+              style: TextStyle(fontSize: 12, color: Colors.black54),
+            ),
+          ),
+        ],
       ),
     );
   }

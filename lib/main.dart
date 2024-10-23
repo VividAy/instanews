@@ -1,11 +1,23 @@
+// main.dart
+
 import 'package:flutter/material.dart';
-import 'profile_page.dart';
+import 'package:provider/provider.dart';
+import 'submission_provider.dart'; // Import the provider
 import 'home_page.dart';
-import 'search_page.dart';
 import 'add_page.dart';
+import 'profile_page.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (_) =>
+                SubmissionProvider()), // Initialize SubmissionProvider
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'instanews',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
@@ -25,7 +37,7 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.grey, // Grey for unselected items
         ),
       ),
-      home: const MainPage(),
+      home: const MainPage(), // Main page of the app
     );
   }
 }
@@ -42,15 +54,13 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = [
     const MyHomePage(),
-    const SearchPage(),
     const AddPage(),
     const ProfilePage(),
   ];
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex =
-          index; // Update the selected index when an item is clicked
+      _selectedIndex = index; // Update the selected index
     });
   }
 
@@ -66,12 +76,8 @@ class _MainPageState extends State<MainPage> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.add),
-            label: 'Add',
+            label: 'Create',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
@@ -81,9 +87,7 @@ class _MainPageState extends State<MainPage> {
         currentIndex: _selectedIndex,
         selectedItemColor: Color(0xFF7FA643),
         unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        onTap: _onItemTapped, // Handle item tap
       ),
     );
   }

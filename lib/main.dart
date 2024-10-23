@@ -11,7 +11,9 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => SubmissionProvider()),
+        ChangeNotifierProvider(
+            create: (_) =>
+                SubmissionProvider()), // Initialize SubmissionProvider
       ],
       child: const MyApp(),
     ),
@@ -35,7 +37,7 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.grey, // Grey for unselected items
         ),
       ),
-      home: const MainPage(),
+      home: const MainPage(), // Main page of the app
     );
   }
 }
@@ -58,7 +60,7 @@ class _MainPageState extends State<MainPage> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      _selectedIndex = index; // Update the selected index
     });
   }
 
@@ -85,7 +87,7 @@ class _MainPageState extends State<MainPage> {
         currentIndex: _selectedIndex,
         selectedItemColor: Color(0xFF7FA643),
         unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+        onTap: _onItemTapped, // Handle item tap
       ),
     );
   }

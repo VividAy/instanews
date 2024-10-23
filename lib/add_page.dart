@@ -34,75 +34,75 @@ class _AddPageState extends State<AddPage> {
 
   // Function to save the entered data
   void _saveData() {
-  String title = _titleController.text.trim();
-  String description = _descriptionController.text.trim();
-  String imageUrl = _imageUrl ??
-      ''; // Check for image URL or set an empty string if no image is uploaded
+    String title = _titleController.text.trim();
+    String description = _descriptionController.text.trim();
+    String imageUrl = _imageUrl ??
+        ''; // Check for image URL or set an empty string if no image is uploaded
 
-  // Validate if all fields are filled
-  if (title.isEmpty) {
-    _showErrorDialog('Title is required');
-    return;
-  }
-  
-  if (description.isEmpty) {
-    _showErrorDialog('Description is required');
-    return;
-  }
+    // Validate if all fields are filled
+    if (title.isEmpty) {
+      _showErrorDialog('Title is required');
+      return;
+    }
 
-  if (imageUrl.isEmpty) {
-    _showErrorDialog('Image is required');
-    return;
-  }
+    if (description.isEmpty) {
+      _showErrorDialog('Description is required!');
+      return;
+    }
 
-  if (_tags.isEmpty) {
-    _showErrorDialog('At least one tag is required');
-    return;
-  }
+    if (imageUrl.isEmpty) {
+      _showErrorDialog('Image is required!');
+      return;
+    }
 
-  // Create a new Submission object
-  Submission submission = Submission(
-    title: title,
-    description: description,
-    imageUrl: imageUrl,
-  );
+    if (_tags.isEmpty) {
+      _showErrorDialog('At least one tag is required!');
+      return;
+    }
 
-  // Use Provider to update the list of submissions
-  Provider.of<SubmissionProvider>(context, listen: false)
-      .addSubmission(submission);
+    // Create a new Submission object
+    Submission submission = Submission(
+      title: title,
+      description: description,
+      imageUrl: imageUrl,
+    );
 
-  // Navigate to the ThankYouPage
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ThankYouPage(
-        imageUrls: imageUrls,
-        descriptions: descriptions,
+    // Use Provider to update the list of submissions
+    Provider.of<SubmissionProvider>(context, listen: false)
+        .addSubmission(submission);
+
+    // Navigate to the ThankYouPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ThankYouPage(
+          imageUrls: imageUrls,
+          descriptions: descriptions,
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
 // Method to show an error dialog
-void _showErrorDialog(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // Function to add a tag to the list
   void _addTag(String tag) {
@@ -138,14 +138,15 @@ void _showErrorDialog(String message) {
                 const Text(
                   'Add Your Submission',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 36,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 30),
-                _buildTextField(_titleController, 'Enter title', 40),
+                _buildTextField(_titleController, 'Enter Title:', 45),
                 const SizedBox(height: 12),
-                _buildDescriptionTextField(_descriptionController, 'Enter description', 200),
+                _buildDescriptionTextField(
+                    _descriptionController, 'Enter Description:', 200),
                 const SizedBox(height: 16),
                 GestureDetector(
                   onTap: () {

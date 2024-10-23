@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Leave the App?'),
-          content: const Text('Do you want to open a webpage?'),
+          content: const Text('Do you want to enter the te?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -230,14 +230,18 @@ class _MyHomePageState extends State<MyHomePage> {
                         Text(
                           _titles[index],
                           style: const TextStyle(
-                            fontSize: 18,
+                            fontSize: 24.0, // Increased font size for the title
+                            color: Color(0xFF7FA643), // Consistent with top bar
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           _descriptions[index],
-                          style: const TextStyle(fontSize: 16),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
                         ),
                       ],
                     ),

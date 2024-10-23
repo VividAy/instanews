@@ -18,13 +18,8 @@ class datapkg {
 }
 
 class dataStorage {
-  dataStorage();
-
-  List<String> newImages = [
-    // Add 10 image URLs here for demonstration
-  ];
-
-  static List<datapkg> data = [
+  // List of default datapkg objects
+  static List<datapkg> _defaultData = [
     datapkg(
       'https://media.cnn.com/api/v1/images/stellar/prod/ap24294169788999-copy.jpg?c=16x9&q=h_653,w_1160,c_fill/f_webp',
       'This image captures a stunning sunset over a mountain range, where the sky is painted with vibrant orange and pink hues. The shadows of the peaks create a dramatic contrast, making the scene look like a masterpiece of nature. It evokes a sense of tranquility and awe, perfect for those who appreciate nature’s beauty.',
@@ -56,23 +51,59 @@ class dataStorage {
         'Description for image 10', 'Title 10'),
   ];
 
+  // List that holds both the default and user-added data
+  static List<datapkg> _userData = [];
+
+  // Combine the default data with user-added data
+  List<datapkg> get data => [..._defaultData, ..._userData];
+
+  // Method to add new data entries
   void addData(String img, String desc, String title) {
-    data.add(datapkg(img, desc, title));
+    _userData.add(datapkg(img, desc, title));
   }
 
+  // Method to update the description of an existing entry
   void setDesc(int index, String desc) {
-    data[index] = datapkg(data[index].i, desc, data[index].title);
+    if (index < _defaultData.length) {
+      _defaultData[index] =
+          datapkg(_defaultData[index].i, desc, _defaultData[index].title);
+    } else {
+      int userIndex = index - _defaultData.length;
+      _userData[userIndex] =
+          datapkg(_userData[userIndex].i, desc, _userData[userIndex].title);
+    }
   }
 
+  // Method to update the image URL of an existing entry
   void setImg(int index, String img) {
-    data[index] = datapkg(img, data[index].des, data[index].title);
+    if (index < _defaultData.length) {
+      _defaultData[index] =
+          datapkg(img, _defaultData[index].des, _defaultData[index].title);
+    } else {
+      int userIndex = index - _defaultData.length;
+      _userData[userIndex] =
+          datapkg(img, _userData[userIndex].des, _userData[userIndex].title);
+    }
   }
 
+  // Method to update the title of an existing entry
   void setTitle(int index, String title) {
-    data[index] = datapkg(data[index].i, data[index].des, title);
+    if (index < _defaultData.length) {
+      _defaultData[index] =
+          datapkg(_defaultData[index].i, _defaultData[index].des, title);
+    } else {
+      int userIndex = index - _defaultData.length;
+      _userData[userIndex] =
+          datapkg(_userData[userIndex].i, _userData[userIndex].des, title);
+    }
   }
 
+  // Method to retrieve a specific data entry
   datapkg getData(int index) {
-    return data.elementAt(index);
+    if (index < _defaultData.length) {
+      return _defaultData.elementAt(index);
+    } else {
+      return _userData.elementAt(index - _defaultData.length);
+    }
   }
 }

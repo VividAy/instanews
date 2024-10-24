@@ -6,6 +6,7 @@ import 'submission_provider.dart'; // Import the provider
 import 'home_page.dart';
 import 'add_page.dart';
 import 'profile_page.dart';
+import 'login_page.dart';
 
 void main() {
   runApp(
@@ -37,7 +38,7 @@ class MyApp extends StatelessWidget {
           unselectedItemColor: Colors.grey, // Grey for unselected items
         ),
       ),
-      home: const MainPage(), // Main page of the app
+      home: const LoginPage(), // Main page of the app
     );
   }
 }

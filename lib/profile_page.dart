@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'data.dart'; // Assuming dataStorage is defined here
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -9,40 +9,28 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool isFollowing = false;
-
-  // List of image URLs
-  final List<String> imageUrls = [
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/160',
-    'https://via.placeholder.com/170',
-    'https://via.placeholder.com/180',
-    'https://via.placeholder.com/190',
-    'https://via.placeholder.com/100',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-    'https://via.placeholder.com/150',
-  ];
+  List<String> _links = []; // List to hold image URLs
+  dataStorage str = dataStorage(); // Assuming this is your data source
 
   @override
   void initState() {
     super.initState();
-    _loadFollowingState();
+    _loadImageLinks(); // Load image links when the page initializes
   }
 
-  Future<void> _loadFollowingState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  // Function to load image links
+  void _loadImageLinks() {
+    List<String> newLinks = [];
+    int lim = str.getNumPkgs() - 1;
+
+    // Loop through the data and add image links to the list
+    for (; lim >= 0; lim--) {
+      newLinks.add(str.getData(lim).i); // Assuming .i gives the image URL
+    }
+
     setState(() {
-      isFollowing = prefs.getBool('isFollowing') ?? false;
+      _links = newLinks; // Update the state with the loaded image links
     });
-  }
-
-  Future<void> _saveFollowingState() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('isFollowing', isFollowing);
   }
 
   @override
@@ -91,80 +79,40 @@ class _ProfilePageState extends State<ProfilePage> {
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            setState(() {
-                              isFollowing = !isFollowing;
-                              _saveFollowingState();
-                            });
-                          },
-                          label: Text(
-                            isFollowing ? 'Following' : 'Follow',
-                            style: const TextStyle(color: Colors.black),
-                          ),
-                          icon: Icon(
-                            isFollowing ? Icons.check : Icons.add,
-                            color: Colors.black,
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: isFollowing
-                                ? const Color(0xFF7FA643)
-                                : Colors.grey,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            minimumSize: const Size(200, 50),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
             ),
+            const SizedBox(height: 16),
+            // Displaying image links in GridView
             Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-              child: Container(
-                height: 450, // height for three boxes
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (scrollNotification) {
-                    if (scrollNotification is ScrollEndNotification) {
-                      setState(() {});
-                    }
-                    return true;
-                  },
-                  child: ListView.builder(
-                    itemCount: imageUrls.length,
-                    itemBuilder: (context, index) {
-                      final startIndex = (index * 3) % imageUrls.length;
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: List.generate(3, (i) {
-                          final imageUrl = imageUrls[(startIndex + i) % imageUrls.length];
-                          return Container(
-                            width: 100,
-                            height: 100,
-                            margin: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.network(
-                                imageUrl,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          );
-                        }),
-                      );
-                    },
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: GridView.builder(
+                shrinkWrap:
+                    true, // Ensures the GridView doesn't take infinite height
+                physics:
+                    const NeverScrollableScrollPhysics(), // Disable scrolling inside GridView
+                itemCount: _links.length, // Number of images
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, // 3 boxes per row
+                  crossAxisSpacing: 10.0, // Spacing between boxes horizontally
+                  mainAxisSpacing: 10.0, // Spacing between boxes vertically
                 ),
+                itemBuilder: (context, index) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        _links[index], // Load the image from _links list
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ],

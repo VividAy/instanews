@@ -98,7 +98,7 @@ class _AddPageState extends State<AddPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
               },
               child: const Text('OK'),
             ),
@@ -124,14 +124,30 @@ class _AddPageState extends State<AddPage> {
     return text.trim().split(RegExp(r'\s+')).length;
   }
 
-  void _handleTap(String a, String b, String c, String l){
-    if(_wordCount(b) < 50 && _wordCount(a) < 50 && l.length > 0){
-      str.addData(c,b,a,l, _tags);
-      TextEditingValue t = TextEditingValue();
-      _URLController.value = t;
-      _imageController.value = t;
-      _titleController.value = t;
-      _descriptionController.value = t;
+  void _handleTap(
+      String title, String description, String imageUrl, String articleUrl) {
+    if (_wordCount(description) <= 50 &&
+        _wordCount(title) <= 50 &&
+        articleUrl.isNotEmpty) {
+      str.addData(imageUrl, description, title, articleUrl, _tags);
+
+      // Clear the form fields after successful submission
+      _titleController.clear();
+      _descriptionController.clear();
+      _imageController.clear();
+      _URLController.clear();
+      _tags.clear();
+
+      // Show confirmation dialog or navigate to Thank You page
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ThankYouPage(
+            imageUrls: imageUrls,
+            descriptions: descriptions,
+          ),
+        ),
+      );
     }
   }
 
@@ -155,7 +171,7 @@ class _AddPageState extends State<AddPage> {
                   style: TextStyle(
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
-                    color : Color(0xFF7FA643),
+                    color: Color(0xFF7FA643),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -163,29 +179,49 @@ class _AddPageState extends State<AddPage> {
                 const SizedBox(height: 12),
                 _buildDescriptionTextField(
                     _descriptionController, 'Enter Description:', 200),
+                const SizedBox(height: 12),
+                _buildTextField(_imageController, 'Enter image URL', 45),
+                const SizedBox(height: 12),
+                _buildTextField(_URLController, 'Enter article URL', 45),
                 const SizedBox(height: 16),
                 _buildTagsSection(),
-                const SizedBox(height: 12),
-                _buildDescriptionTextField(_imageController, 'Enter image URL', 100),
-                const SizedBox(height: 12),
-                _buildDescriptionTextField(_URLController, 'Enter article URL', 100),
                 const SizedBox(height: 10),
                 ElevatedButton(
-                  onPressed: () => _handleTap(_titleController.text, _descriptionController.text, _imageController.text, _URLController.text),
+                  onPressed: () {
+                    // Check if any field is empty or tags are not selected
+                    if (_titleController.text.isEmpty) {
+                      _showErrorDialog('Title is required!');
+                    } else if (_descriptionController.text.isEmpty) {
+                      _showErrorDialog('Description is required!');
+                    } else if (_imageController.text.isEmpty) {
+                      _showErrorDialog('Image URL is required!');
+                    } else if (_URLController.text.isEmpty) {
+                      _showErrorDialog('Article URL is required!');
+                    } else if (_tags.isEmpty) {
+                      _showErrorDialog('At least one tag is required!');
+                    } else {
+                      // All fields are filled, proceed with the submission
+                      _handleTap(
+                        _titleController.text,
+                        _descriptionController.text,
+                        _imageController.text,
+                        _URLController.text,
+                      );
+                    }
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[300], // Background color
                     minimumSize: const Size(150, 50),
                   ),
                   child: const Text(
                     'Submit',
-                
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF7FA643),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),

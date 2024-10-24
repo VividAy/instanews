@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // Loop through the data and add all articles that match the selected tag
     int lim = datastore.getNumPkgs() - 1;
     for (; lim >= 0; lim--) {
-      if (datastore.getData(lim).checkTag(_selectedItem) || _selectedItem == 'Untagged') {
+      if (datastore.getData(lim).checkTag(_selectedItem) || _selectedItem == 'Feed') {
         newImages.add(datastore.getData(lim).i);
         newTitles.add(datastore.getData(lim).title);
         newDescriptions.add(datastore.getData(lim).des);
@@ -150,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     _buildTopBarItem('Literature'),
                     _buildTopBarItem('Article Review'),
                     _buildTopBarItem('Science Research'),
-                    _buildTopBarItem('Untagged')
+                    _buildTopBarItem('Feed')
                   ],
                 ),
               ),

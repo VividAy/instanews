@@ -46,7 +46,7 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text(
-                "Login",
+                "Welcome",
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -86,7 +86,12 @@ class _LoginPageState extends State<LoginPage> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                 ),
-                child: const Text("Login"),
+                child: const Text(
+                  "Login",
+                  style: TextStyle(
+                    color: Colors.black, // Always black text
+                  ),
+                ),
               ),
               const SizedBox(height: 20),
               Text(

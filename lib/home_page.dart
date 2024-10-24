@@ -22,6 +22,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _currentPage = 0;
   List<bool> _likeStates = []; // Track like states for each post
   List<int> _likeCounts = []; // Track the number of likes for each post
+  List<String> _links = [];
 
   @override
   void initState() {
@@ -31,6 +32,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Function to load all images, titles, and descriptions in the selected tag
   void _loadArticles() {
+    _currentPage = 0;
     imgp p = imgp();
     List<String> newImages = [];
     List<String> newTitles = [];
@@ -44,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _descriptions.clear();
     _likeStates.clear();
     _likeCounts.clear();
+    _links.clear();
 
     // Loop through the data and add all articles that match the selected tag
     int lim = datastore.getNumPkgs() - 1;
@@ -54,6 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
         newDescriptions.add(datastore.getData(lim).des);
         newLikeStates.add(false); // Initialize the item as not liked
         newLikeCounts.add(0); // Initialize the like count as zero
+        _links.add(datastore.getData(lim).link);
       }
     }
 
@@ -70,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Fetch more images, titles, and descriptions once the user reaches the last page
   void _onPageChanged(int index) {
     _currentPage = index;
+    
     if (_currentPage == _imageUrls.length - 1) {
       // In case you need to load more articles dynamically, implement it here.
       // But for now, it just loads what is in the selected tag.
@@ -79,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void _onPageUpdate() {
     _currentPage = 0;
     _loadArticles(); // Load all articles under the selected tag when the user changes the tag
-    _currentPage++;
+    //_currentPage++;
   }
 
   // Function to show a dialog when swiping right
@@ -110,7 +115,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (shouldLeave) {
       // Fetch the correct URL using the current page index (matching the article shown)
-      String url = datastore.getData(_currentPage).link;
+
+      String url = _links[_currentPage];
 
       if (await canLaunch(url)) {
         await launch(url); // Open the URL in an external browser

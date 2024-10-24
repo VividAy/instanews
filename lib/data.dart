@@ -2,6 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 
+const hostname = '172.16.216.214';
+// Davids- 172.20.10.3
+// Veer - 172.16.216.214
+
 class datapkg {
   String i, des, title, link;
   List<String> tags = [];
@@ -30,13 +34,7 @@ class datapkg {
 
   // Method to convert datapkg to JSON
   Map<String, dynamic> toJson() {
-    return {
-      'i': i,
-      'des': des,
-      'title': title,
-      'link': link,
-      'tags': tags
-    };
+    return {'i': i, 'des': des, 'title': title, 'link': link, 'tags': tags};
   }
 
   // Method to create a datapkg from JSON
@@ -49,7 +47,8 @@ class datapkg {
   // Method to send data to the server
   Future<void> sendData() async {
     var httpClient = HttpClient();
-    var uri = Uri.parse('http://172.20.10.3:3000/add');  // Replace with your machine's IP and port 3000
+    var uri = Uri.parse(
+        'http://${hostname}:3000/add'); // Replace with your machine's IP and port 3000
     var request = await httpClient.postUrl(uri);
     request.headers.set('content-type', 'application/json');
     request.add(utf8.encode(json.encode(toJson())));
@@ -65,7 +64,8 @@ class datapkg {
   // Method to get data from the server
   static Future<List<datapkg>> getData() async {
     var httpClient = HttpClient();
-    var uri = Uri.parse('http://172.20.10.3:3000/data');  // Replace with your machine's IP and port 3000
+    var uri = Uri.parse(
+        'http://${hostname}:3000/data'); // Replace with your machine's IP and port 3000
     var request = await httpClient.getUrl(uri);
     var response = await request.close();
 
@@ -89,7 +89,8 @@ class dataStorage {
   static int design = 0;
   static int article = 0;
 
-  Future<void> addData(String img, String desc, String title, String link, List<String> tags) async {
+  Future<void> addData(String img, String desc, String title, String link,
+      List<String> tags) async {
     datapkg r = datapkg(img, desc, title, link);
     for (String i in tags) {
       r.addTag(i);
@@ -106,13 +107,13 @@ class dataStorage {
         design++;
       }
     }
-    await r.sendData();  // Send data to the server
+    await r.sendData(); // Send data to the server
     data.add(r);
     numPkgs++;
   }
 
   Future<void> fetchData() async {
-    data = await datapkg.getData();  // Get data from the server
+    data = await datapkg.getData(); // Get data from the server
     numPkgs = data.length;
     // Reset counts
     article = 0;
@@ -156,15 +157,18 @@ class dataStorage {
 
   // Method to update the description of an existing entry
   void setDesc(int index, String desc) {
-    data[index] = datapkg(data[index].i, desc, data[index].title, data[index].link);
+    data[index] =
+        datapkg(data[index].i, desc, data[index].title, data[index].link);
   }
 
   void setImg(int index, String img) {
-    data[index] = datapkg(img, data[index].des, data[index].title, data[index].link);
+    data[index] =
+        datapkg(img, data[index].des, data[index].title, data[index].link);
   }
 
   void setTitle(int index, String title) {
-    data[index] = datapkg(data[index].i, data[index].des, title, data[index].link);
+    data[index] =
+        datapkg(data[index].i, data[index].des, title, data[index].link);
   }
 
   Future<datapkg> getData(int index) async {

@@ -53,19 +53,20 @@ class _MyHomePageState extends State<MyHomePage> {
     await datastore.fetchData(); // Assuming fetchData is async
 
     // Loop through the data and add all articles that match the selected tag
-    int lim = await datastore.getNumPkgs() - 1; // Await getNumPkgs() if it's async
-for (; lim >= 0; lim--) {
-  var data = await datastore.getData(lim); // Await the result if getData is async
-  if (data.checkTag(_selectedItem) || _selectedItem == 'Feed') {
-    newImages.add(data.i);
-    newTitles.add(data.title);
-    newDescriptions.add(data.des);
-    newLikeStates.add(false); // Initialize the item as not liked
-    newLikeCounts.add(0); // Initialize the like count as zero
-    newLinks.add(data.link); // Correctly set links to the new list
-  }
-}
-
+    int lim =
+        await datastore.getNumPkgs() - 1; // Await getNumPkgs() if it's async
+    for (; lim >= 0; lim--) {
+      var data =
+          await datastore.getData(lim); // Await the result if getData is async
+      if (data.checkTag(_selectedItem) || _selectedItem == 'Feed') {
+        newImages.add(data.i);
+        newTitles.add(data.title);
+        newDescriptions.add(data.des);
+        newLikeStates.add(false); // Initialize the item as not liked
+        newLikeCounts.add(0); // Initialize the like count as zero
+        newLinks.add(data.link); // Correctly set links to the new list
+      }
+    }
 
     // Set the new lists in the state
     setState(() {
@@ -149,9 +150,9 @@ for (; lim >= 0; lim--) {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildTopBarItem('3D Art and Design'),
+                    _buildTopBarItem('Art and Design'),
                     _buildTopBarItem('Literature'),
-                    _buildTopBarItem('Article Review'),
+                    _buildTopBarItem('Current Events'),
                     _buildTopBarItem('Science Research'),
                     _buildTopBarItem('Feed')
                   ],
@@ -170,7 +171,8 @@ for (; lim >= 0; lim--) {
                   }
                   return _buildPage(index);
                 },
-                itemCount: _imageUrls.length, // All items in the category are shown
+                itemCount:
+                    _imageUrls.length, // All items in the category are shown
               ),
             ),
           ],
@@ -243,6 +245,7 @@ for (; lim >= 0; lim--) {
         ),
         const SizedBox(height: 16),
         // Second Container (showing the title, description, profile, likes, and comments)
+        // Second Container (showing the title, description, profile, likes, and comments)
         Expanded(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -256,26 +259,31 @@ for (; lim >= 0; lim--) {
                 children: [
                   Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _titles[index],
-                          style: const TextStyle(
-                            fontSize: 24.0, // Increased font size for the title
-                            color: Color(0xFF7FA643), // Consistent with top bar
-                            fontWeight: FontWeight.bold,
+                    child: SingleChildScrollView(
+                      // Make the content scrollable
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _titles[index],
+                            style: const TextStyle(
+                              fontSize:
+                                  24.0, // Increased font size for the title
+                              color:
+                                  Color(0xFF7FA643), // Consistent with top bar
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _descriptions[index],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
+                          const SizedBox(height: 8),
+                          Text(
+                            _descriptions[index],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                   // Profile picture (bottom left)

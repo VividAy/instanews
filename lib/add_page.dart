@@ -30,10 +30,9 @@ class _AddPageState extends State<AddPage> {
 
   final List<String> _availableTags = [
     'Literature',
-    '3D Art and Design',
-    'Article Review',
+    'Art and Design',
+    'Current Events',
     'Science Research',
-    'Tennis'
   ];
 
   // Function to save the entered data

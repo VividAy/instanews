@@ -77,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                      'Passionate in Design, Engineering, and Coding, I enjoy competing in the VEX Robotics competition and participating/hosting various hackathons. I merge my art skills most significantly with app development through UI/UX design through figma and python.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),

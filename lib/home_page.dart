@@ -31,14 +31,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // Function to load all images, titles, and descriptions in the selected tag
-  void _loadArticles() {
+  Future<void> _loadArticles() async {
     _currentPage = 0;
-    imgp p = imgp();
+
     List<String> newImages = [];
     List<String> newTitles = [];
     List<String> newDescriptions = [];
     List<bool> newLikeStates = [];
     List<int> newLikeCounts = [];
+    List<String> newLinks = []; // Correctly load links
 
     // Clear the existing lists when a new tag is selected
     _imageUrls.clear();
@@ -48,18 +49,23 @@ class _MyHomePageState extends State<MyHomePage> {
     _likeCounts.clear();
     _links.clear();
 
+    // Await the datastore fetching data if it is an async function
+    await datastore.fetchData(); // Assuming fetchData is async
+
     // Loop through the data and add all articles that match the selected tag
-    int lim = datastore.getNumPkgs() - 1;
-    for (; lim >= 0; lim--) {
-      if (datastore.getData(lim).checkTag(_selectedItem) || _selectedItem == 'Feed') {
-        newImages.add(datastore.getData(lim).i);
-        newTitles.add(datastore.getData(lim).title);
-        newDescriptions.add(datastore.getData(lim).des);
-        newLikeStates.add(false); // Initialize the item as not liked
-        newLikeCounts.add(0); // Initialize the like count as zero
-        _links.add(datastore.getData(lim).link);
-      }
-    }
+    int lim = await datastore.getNumPkgs() - 1; // Await getNumPkgs() if it's async
+for (; lim >= 0; lim--) {
+  var data = await datastore.getData(lim); // Await the result if getData is async
+  if (data.checkTag(_selectedItem) || _selectedItem == 'Feed') {
+    newImages.add(data.i);
+    newTitles.add(data.title);
+    newDescriptions.add(data.des);
+    newLikeStates.add(false); // Initialize the item as not liked
+    newLikeCounts.add(0); // Initialize the like count as zero
+    newLinks.add(data.link); // Correctly set links to the new list
+  }
+}
+
 
     // Set the new lists in the state
     setState(() {
@@ -68,27 +74,26 @@ class _MyHomePageState extends State<MyHomePage> {
       _descriptions.addAll(newDescriptions);
       _likeStates.addAll(newLikeStates);
       _likeCounts.addAll(newLikeCounts);
+      _links.addAll(newLinks); // Correctly update the state with new links
     });
   }
 
   // Fetch more images, titles, and descriptions once the user reaches the last page
   void _onPageChanged(int index) {
     _currentPage = index;
-    
+
     if (_currentPage == _imageUrls.length - 1) {
-      // In case you need to load more articles dynamically, implement it here.
-      // But for now, it just loads what is in the selected tag.
+      // Implement dynamic loading logic if needed
     }
   }
 
   void _onPageUpdate() {
     _currentPage = 0;
     _loadArticles(); // Load all articles under the selected tag when the user changes the tag
-    //_currentPage++;
   }
 
   // Function to show a dialog when swiping right
-  void _showLeaveDialog() async {
+  Future<void> _showLeaveDialog() async {
     bool shouldLeave = await showDialog(
       context: context,
       builder: (context) {
@@ -115,7 +120,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
     if (shouldLeave) {
       // Fetch the correct URL using the current page index (matching the article shown)
-
       String url = _links[_currentPage];
 
       if (await canLaunch(url)) {
@@ -124,8 +128,7 @@ class _MyHomePageState extends State<MyHomePage> {
         throw 'Could not launch $url';
       }
     }
-}
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -163,12 +166,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPageChanged: _onPageChanged,
                 itemBuilder: (context, index) {
                   if (index >= _imageUrls.length) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
                   return _buildPage(index);
                 },
-                itemCount:
-                    _imageUrls.length, // All items in the category are shown
+                itemCount: _imageUrls.length, // All items in the category are shown
               ),
             ),
           ],
@@ -193,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
           label,
           style: TextStyle(
             fontSize: 12.0,
-            color: isSelected ? Color(0xFF7FA643) : Colors.grey,
+            color: isSelected ? const Color(0xFF7FA643) : Colors.grey,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -289,7 +291,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ),
                         );
                       },
-                      child: CircleAvatar(
+                      child: const CircleAvatar(
                         radius: 20,
                         backgroundImage: NetworkImage(
                           'https://picsum.photos/200',

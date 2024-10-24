@@ -20,23 +20,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Function to load image links
-  // Function to load image links
-Future<void> _loadImageLinks() async {
-  List<String> newLinks = [];
-  await str.fetchData(); // Ensure data is fetched before accessing it
-  int lim = await str.getNumPkgs() - 1;
+  Future<void> _loadImageLinks() async {
+    List<String> newLinks = [];
+    await str.fetchData(); // Ensure data is fetched before accessing it
+    int lim = await str.getNumPkgs() - 1;
 
-  // Loop through the data and add image links to the list
-  for (; lim >= 0; lim--) {
-    var data = await str.getData(lim); // Assuming getData is async
-    newLinks.add(data.i); // Assuming .i gives the image URL
+    // Loop through the data and add image links to the list
+    for (; lim >= 0; lim--) {
+      var data = await str.getData(lim); // Assuming getData is async
+      newLinks.add(data.i); // Assuming .i gives the image URL
+    }
+
+    setState(() {
+      _links = newLinks; // Update the state with the loaded image links
+    });
   }
-
-  setState(() {
-    _links = newLinks; // Update the state with the loaded image links
-  });
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -104,36 +102,54 @@ Future<void> _loadImageLinks() async {
                   mainAxisSpacing: 10.0, // Spacing between boxes vertically
                 ),
                 itemBuilder: (context, index) {
-                  final data =
-                      str.getData(index); // Get data for the current item
-                  return GestureDetector(
-                    onTap: () {
-                      // Navigate to DetailsPage when an image is clicked
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DetailsPage(
-                            imageUrl: data.i,
-                            title: data.title,
-                            description: data.des,
-                            link: data.link, // Pass the link
+                  return FutureBuilder<datapkg>(
+                    future: str.getData(index), // Fetch data asynchronously
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        ); // Show loading indicator while data is being fetched
+                      } else if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Error loading data'),
+                        ); // Show error message if something goes wrong
+                      } else if (snapshot.hasData) {
+                        final data = snapshot.data!; // Unwrap the data
+                        return GestureDetector(
+                          onTap: () {
+                            // Navigate to DetailsPage when an image is clicked
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailsPage(
+                                  imageUrl: data.i,
+                                  title: data.title,
+                                  description: data.des,
+                                  link: data.link, // Pass the link
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                data.i, // Load the image from the data
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        return const Center(
+                          child: Text('No data available'),
+                        );
+                      }
                     },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: Image.network(
-                          data.i, // Load the image from _links list
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ),
                   );
                 },
               ),

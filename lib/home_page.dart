@@ -26,30 +26,38 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    _loadImagesTitlesAndDescriptions(); // Load the initial set of images, titles, and descriptions
+    _loadArticles(); // Load the initial set of articles (multiple in the same category)
   }
 
-  // Function to load 10 images, titles, and their descriptions at a time
-  void _loadImagesTitlesAndDescriptions() {
+  // Function to load all images, titles, and descriptions in the selected tag
+  void _loadArticles() {
     imgp p = imgp();
     List<String> newImages = [];
     List<String> newTitles = [];
     List<String> newDescriptions = [];
     List<bool> newLikeStates = [];
     List<int> newLikeCounts = [];
-    int lim = datastore.getNumPkgs()-1;
+
+    // Clear the existing lists when a new tag is selected
+    _imageUrls.clear();
+    _titles.clear();
+    _descriptions.clear();
+    _likeStates.clear();
+    _likeCounts.clear();
+
+    // Loop through the data and add all articles that match the selected tag
+    int lim = datastore.getNumPkgs() - 1;
     for (; lim >= 0; lim--) {
-      if(datastore.getData(lim).checkTag(_selectedItem)){
-      newImages.add(datastore.getData(lim).i);
-      newTitles.add(datastore.getData(lim).title);
-      newDescriptions.add(datastore.getData(lim).des);
-      newLikeStates.add(false); // Initialize all new items as not liked
-      newLikeCounts
-          .add(0); // Initialize the like count as zero for each new item
+      if (datastore.getData(lim).checkTag(_selectedItem)) {
+        newImages.add(datastore.getData(lim).i);
+        newTitles.add(datastore.getData(lim).title);
+        newDescriptions.add(datastore.getData(lim).des);
+        newLikeStates.add(false); // Initialize the item as not liked
+        newLikeCounts.add(0); // Initialize the like count as zero
       }
     }
 
-    // Append the new images, titles, descriptions, like states, and counts to the current lists
+    // Set the new lists in the state
     setState(() {
       _imageUrls.addAll(newImages);
       _titles.addAll(newTitles);
@@ -59,28 +67,29 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  // Fetch more images, titles, and descriptions once the user reaches the 10th page
+  // Fetch more images, titles, and descriptions once the user reaches the last page
   void _onPageChanged(int index) {
     _currentPage = index;
     if (_currentPage == _imageUrls.length - 1) {
-      _loadImagesTitlesAndDescriptions(); // Load the next set of 10 images, titles, and descriptions when the user reaches the last image
+      // In case you need to load more articles dynamically, implement it here.
+      // But for now, it just loads what is in the selected tag.
     }
   }
 
   void _onPageUpdate() {
     _currentPage = 0;
-    _loadImagesTitlesAndDescriptions(); // Load the next set of 10 images, titles, and descriptions when the user reaches the last image
+    _loadArticles(); // Load all articles under the selected tag when the user changes the tag
     _currentPage++;
   }
 
   // Function to show a dialog when swiping right
-  Future<void> _showLeaveDialog() async {
+  void _showLeaveDialog() async {
     bool shouldLeave = await showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Leave the App?'),
-          content: const Text('Do you want to enter the te?'),
+          content: const Text('Do you want to enter the link?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -100,24 +109,17 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (shouldLeave) {
-      int div = 0;
-      if(_selectedItem == 'Article Review'){
-        div = datastore.getarticle();
+      // Fetch the correct URL using the current page index (matching the article shown)
+      String url = datastore.getData(_currentPage).link;
+
+      if (await canLaunch(url)) {
+        await launch(url); // Open the URL in an external browser
+      } else {
+        throw 'Could not launch $url';
       }
-      if(_selectedItem == 'Literature'){
-        div = datastore.getlit();
-      }
-      if(_selectedItem == 'Science Research'){
-        div = datastore.getsci();
-      }
-      if(_selectedItem == '3D Art and Design'){
-        div = datastore.getdesign();
-      }
-      String url =
-          datastore.getData(_currentPage % div).link; // Example URL
-          await launch(url); // Open the URL in an external browser
     }
-  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +160,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                   return _buildPage(index);
                 },
-                itemCount: _imageUrls.length + 1,
+                itemCount:
+                    _imageUrls.length, // All items in the category are shown
               ),
             ),
           ],
@@ -174,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
       onTap: () {
         setState(() {
           _selectedItem = label; // Update selected item
-          _onPageUpdate();
+          _onPageUpdate(); // Load articles for the selected tag
         });
       },
       child: Padding(

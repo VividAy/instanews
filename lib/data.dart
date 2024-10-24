@@ -34,14 +34,45 @@ class dataStorage {
 
   static List<datapkg> data = [];
   static int numPkgs = 0;
+  static int lit = 0;
+  static int sci = 0;
+  static int design = 0;
+  static int article = 0;
 
   void addData(String img, String desc, String title, link, List <String> tags) {
     datapkg r = datapkg(img, desc, title, link);
     for(String i in tags){
       r.addTag(i);
+      if(i == 'Article Review'){
+        article++;
+      }
+      if(i == 'Literature'){
+        lit++;
+      }
+      if(i == 'Science Research'){
+        sci++;
+      }
+      if(i == '3D Art and Design'){
+        design++;
+      }
+
     }
     data.add(r);
     numPkgs++;
+  }
+
+  int getarticle(){
+    return article;
+  }
+
+  int getdesign(){
+    return design;
+  }
+  int getsci(){
+    return sci;
+  }
+  int getlit(){
+    return lit;
   }
 
   // Method to update the description of an existing entry

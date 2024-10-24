@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // Import shared_preferences
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -9,25 +9,37 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // Initially set isFollowing to false
   bool isFollowing = false;
+
+  // List of image URLs
+  final List<String> imageUrls = [
+    'https://via.placeholder.com/150',
+    'https://via.placeholder.com/150',
+    'https://via.placeholder.com/150',
+    'https://via.placeholder.com/160',
+    'https://via.placeholder.com/170',
+    'https://via.placeholder.com/180',
+    'https://via.placeholder.com/190',
+    'https://via.placeholder.com/100',
+    'https://via.placeholder.com/150',
+    'https://via.placeholder.com/150',
+    'https://via.placeholder.com/150',
+    'https://via.placeholder.com/150',
+  ];
 
   @override
   void initState() {
     super.initState();
-    _loadFollowingState(); // Load the following state when the page is initialized
+    _loadFollowingState();
   }
 
-  // Load the saved following state from SharedPreferences
   Future<void> _loadFollowingState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      isFollowing = prefs.getBool('isFollowing') ??
-          false; // Default to false if no value found
+      isFollowing = prefs.getBool('isFollowing') ?? false;
     });
   }
 
-  // Save the following state to SharedPreferences
   Future<void> _saveFollowingState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('isFollowing', isFollowing);
@@ -41,7 +53,6 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Profile Section
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 70.0, 16.0, 0),
               child: Container(
@@ -61,13 +72,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Profile Image (Circular)
                     CircleAvatar(
                       radius: 40,
                       backgroundColor: Colors.grey[300],
                     ),
                     const SizedBox(height: 16),
-                    // User Name
                     const Text(
                       'Yuvraj Chaudhary',
                       style: TextStyle(
@@ -76,23 +85,20 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    // Description
                     const Text(
                       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                     const SizedBox(height: 16),
-                    // Following Button
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         ElevatedButton.icon(
                           onPressed: () {
-                            // Toggle the following state
                             setState(() {
                               isFollowing = !isFollowing;
-                              _saveFollowingState(); // Save the state when changed
+                              _saveFollowingState();
                             });
                           },
                           label: Text(
@@ -100,19 +106,17 @@ class _ProfilePageState extends State<ProfilePage> {
                             style: const TextStyle(color: Colors.black),
                           ),
                           icon: Icon(
-                            isFollowing
-                                ? Icons.check
-                                : Icons.add, // Change icon
+                            isFollowing ? Icons.check : Icons.add,
                             color: Colors.black,
                           ),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isFollowing
                                 ? const Color(0xFF7FA643)
-                                : Colors.grey, // Change color
+                                : Colors.grey,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            minimumSize: const Size(200, 50), // Set size
+                            minimumSize: const Size(200, 50),
                           ),
                         ),
                       ],
@@ -121,26 +125,46 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            // Grid View Section (Placeholder)
             Padding(
               padding: const EdgeInsets.fromLTRB(16.0, 0, 16.0, 16.0),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
+              child: Container(
+                height: 450, // height for three boxes
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (scrollNotification) {
+                    if (scrollNotification is ScrollEndNotification) {
+                      setState(() {});
+                    }
+                    return true;
+                  },
+                  child: ListView.builder(
+                    itemCount: imageUrls.length,
+                    itemBuilder: (context, index) {
+                      final startIndex = (index * 3) % imageUrls.length;
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: List.generate(3, (i) {
+                          final imageUrl = imageUrls[(startIndex + i) % imageUrls.length];
+                          return Container(
+                            width: 100,
+                            height: 100,
+                            margin: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(
+                                imageUrl,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        }),
+                      );
+                    },
+                  ),
                 ),
-                itemCount: 12, // Number of items in the grid
-                itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300], // Grey placeholder color
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  );
-                },
               ),
             ),
           ],

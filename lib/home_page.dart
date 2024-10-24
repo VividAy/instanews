@@ -100,13 +100,22 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     if (shouldLeave) {
-      String url =
-          datastore.getData(_currentPage).link; // Example URL
-      if (await canLaunch(url)) {
-        await launch(url); // Open the URL in an external browser
-      } else {
-        throw 'Could not launch $url';
+      int div = 0;
+      if(_selectedItem == 'Article Review'){
+        div = datastore.getarticle();
       }
+      if(_selectedItem == 'Literature'){
+        div = datastore.getlit();
+      }
+      if(_selectedItem == 'Science Research'){
+        div = datastore.getsci();
+      }
+      if(_selectedItem == '3D Art and Design'){
+        div = datastore.getdesign();
+      }
+      String url =
+          datastore.getData(_currentPage % div).link; // Example URL
+          await launch(url); // Open the URL in an external browser
     }
   }
 

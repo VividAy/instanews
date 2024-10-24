@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'details_page.dart'; // Import the details page
 import 'data.dart'; // Assuming dataStorage is defined here
 
 class ProfilePage extends StatefulWidget {
@@ -74,7 +75,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
@@ -99,16 +100,34 @@ class _ProfilePageState extends State<ProfilePage> {
                   mainAxisSpacing: 10.0, // Spacing between boxes vertically
                 ),
                 itemBuilder: (context, index) {
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        _links[index], // Load the image from _links list
-                        fit: BoxFit.cover,
+                  final data =
+                      str.getData(index); // Get data for the current item
+                  return GestureDetector(
+                    onTap: () {
+                      // Navigate to DetailsPage when an image is clicked
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetailsPage(
+                            imageUrl: data.i,
+                            title: data.title,
+                            description: data.des,
+                            link: data.link, // Pass the link
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image.network(
+                          data.i, // Load the image from _links list
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   );

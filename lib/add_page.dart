@@ -261,7 +261,7 @@ class _AddPageState extends State<AddPage> {
             bottom: 10,
             left: 10,
             child: Text(
-              '${_wordCount(controller.text)}/$maxWords characters',
+              '${_wordCount(controller.text)}/$maxWords words',
               style: TextStyle(fontSize: 12, color: Colors.black54),
             ),
           ),

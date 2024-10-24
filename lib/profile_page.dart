@@ -19,19 +19,23 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   // Function to load image links
-  void _loadImageLinks() {
-    List<String> newLinks = [];
-    int lim = str.getNumPkgs() - 1;
+  // Function to load image links
+Future<void> _loadImageLinks() async {
+  List<String> newLinks = [];
+  await str.fetchData(); // Ensure data is fetched before accessing it
+  int lim = await str.getNumPkgs() - 1;
 
-    // Loop through the data and add image links to the list
-    for (; lim >= 0; lim--) {
-      newLinks.add(str.getData(lim).i); // Assuming .i gives the image URL
-    }
-
-    setState(() {
-      _links = newLinks; // Update the state with the loaded image links
-    });
+  // Loop through the data and add image links to the list
+  for (; lim >= 0; lim--) {
+    var data = await str.getData(lim); // Assuming getData is async
+    newLinks.add(data.i); // Assuming .i gives the image URL
   }
+
+  setState(() {
+    _links = newLinks; // Update the state with the loaded image links
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {

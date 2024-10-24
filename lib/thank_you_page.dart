@@ -1,9 +1,14 @@
 // thank_you_page.dart
 
 import 'package:flutter/material.dart';
+import 'package:instanews/main.dart';
+
 
 class ThankYouPage extends StatelessWidget {
-  const ThankYouPage({super.key, required List<String> imageUrls, required List<String> descriptions});
+  const ThankYouPage(
+      {super.key,
+      required List<String> imageUrls,
+      required List<String> descriptions});
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +24,10 @@ class ThankYouPage extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context); // Go back to the previous page
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainPage()),
+                ); // Go back to the previous page
               },
               child: const Text('Back to Home'),
             ),
